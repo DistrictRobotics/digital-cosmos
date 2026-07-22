@@ -4,6 +4,7 @@ import { OrbitControls, Text, Html, useFBO, useAspect } from "@react-three/drei"
 import { EffectComposer, Bloom, DepthOfField, Noise, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import type { Mesh, Group, Points, Camera } from "three";
+import PlanetWorlds from "./planet-worlds/PlanetWorlds";
 
 /* ─── CONFIG ─── */
 const PLANET_POSITIONS: Record<string, THREE.Vector3> = {};
@@ -437,6 +438,29 @@ function HolographicGrid({ visible }: { visible: boolean }) {
 }
 
 /* ─── MAIN SCENE ─── */
+function WorldRenderer({ focusPlanet }: { focusPlanet: string | null }) {
+  const { camera } = useThree();
+  const worldRef = useRef<Group>(null);
+
+  useFrame(() => {
+    if (!focusPlanet || !worldRef.current) {
+      if (worldRef.current) worldRef.current.visible = false;
+      return;
+    }
+    const pos = PLANET_POSITIONS[focusPlanet];
+    if (pos) {
+      worldRef.current.visible = true;
+      worldRef.current.position.copy(pos);
+    }
+  });
+
+  return (
+    <group ref={worldRef} visible={false}>
+      <PlanetWorlds focusPlanet={focusPlanet} />
+    </group>
+  );
+}
+
 export default function SolarSystemScene({
   focusPlanet,
   onPlanetClick,
@@ -473,6 +497,7 @@ export default function SolarSystemScene({
         <Planet name="Neptune" radius={1.4} orbitRadius={100} speed={0.08} color="#4169e1" focusPlanet={focusPlanet} onClick={onPlanetClick} />
 
         <HolographicGrid visible={showHolographic} />
+        <WorldRenderer focusPlanet={focusPlanet} />
         <CinematicCamera focusPlanet={focusPlanet} introDone={introDone} />
         <Effects />
       </Canvas>
