@@ -38,17 +38,45 @@ const CONSTELLATION_COLORS: Record<string, string> = {
 };
 
 function SatelliteConstellations({ feedVisible }: { feedVisible: Record<string, boolean> }) {
-  const pointsRef = useRef<Points>(null);
-  const [geom, setGeom] = useState<THREE.BufferGeometry | null>(null);
+  const groupRef = useRef<Group>(null);
+  const pointsRef = useRef<Points | null>(null);
+
+  // Create the points object once and reuse
+  useEffect(() => {
+    if (!groupRef.current) return;
+    const mat = new THREE.PointsMaterial({
+      size: 0.15, vertexColors: true, sizeAttenuation: true,
+      transparent: true, opacity: 0.85, depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const geom = new THREE.BufferGeometry();
+    const pos = new Float32Array(93 * 3); // max total satellites
+    const col = new Float32Array(93 * 3);
+    geom.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geom.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    const pts = new THREE.Points(geom, mat);
+    pts.frustumCulled = false;
+    groupRef.current.add(pts);
+    pointsRef.current = pts;
+    return () => { if (pts.parent) pts.parent.remove(pts); pts.geometry.dispose(); pts.material.dispose(); };
+  }, []);
 
   useFrame(({ clock }) => {
+    const pts = pointsRef.current;
+    if (!pts) return;
     const t = clock.getElapsedTime();
     const entries = Object.entries(feedVisible).filter(([, v]) => v);
-    if (entries.length === 0) { setGeom(null); return; }
+
+    if (entries.length === 0) { pts.visible = false; return; }
+    pts.visible = true;
 
     const total = entries.reduce((s, [g]) => s + (g === "starlink" ? 42 : g === "gps" ? 31 : g === "cubesat" ? 18 : g === "iss" ? 1 : g === "hubble" ? 1 : 0), 0);
-    const pos = new Float32Array(total * 3);
-    const col = new Float32Array(total * 3);
+    const geom = pts.geometry as THREE.BufferGeometry;
+    const posAttr = geom.attributes.position as THREE.BufferAttribute;
+    const colAttr = geom.attributes.color as THREE.BufferAttribute;
+    const pos = posAttr.array as Float32Array;
+    const col = colAttr.array as Float32Array;
+
     let idx = 0;
     for (const [group, visible] of entries) {
       if (!visible) continue;
@@ -66,18 +94,12 @@ function SatelliteConstellations({ feedVisible }: { feedVisible: Record<string, 
         idx++;
       }
     }
-    const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-    g.setAttribute("color", new THREE.BufferAttribute(col, 3));
-    setGeom(g);
+    posAttr.needsUpdate = true;
+    colAttr.needsUpdate = true;
+    geom.setDrawRange(0, idx);
   });
 
-  if (!geom) return null;
-  return (
-    <points geometry={geom}>
-      <pointsMaterial size={0.15} vertexColors sizeAttenuation transparent opacity={0.85} depthWrite={false} blending={THREE.AdditiveBlending} />
-    </points>
-  );
+  return <group ref={groupRef} />;
 }
 
 /* ─── STAR FIELD ─── */
