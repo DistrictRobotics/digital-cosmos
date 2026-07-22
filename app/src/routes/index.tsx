@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import SolarSystemScene from "../components/SolarSystem";
+import RendererBadge from "../components/RendererBadge";
 
 export const Route = createFileRoute("/")({ component: CosmosPortal });
 
@@ -38,6 +39,7 @@ function CosmosPortal() {
   return (
     <div className="relative w-full min-h-screen bg-cosmos-bg text-cosmos-text overflow-x-hidden">
       <SolarSystemScene focusPlanet={focusPlanet} onPlanetClick={handlePlanetClick} />
+      <RendererBadge />
 
       {/* ─── TOP BAR — DREV COMMAND INTERFACE ─── */}
       <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
@@ -55,7 +57,7 @@ function CosmosPortal() {
       </div>
 
       {/* ─── HOLOGRAPHIC COMMAND DASHBOARD ─── */}
-      <div className="fixed bottom-6 left-6 z-50 pointer-events-none">
+      <div className="fixed bottom-16 left-6 z-50 pointer-events-none">
         <div className="glass-card p-3 backdrop-blur-md bg-black/30 border-cyan-500/10">
           <div className="text-[8px] font-mono tracking-[0.2em] text-cyan-400/30">SYSTEM</div>
           <div className="text-[10px] font-mono text-cyan-400/50 mt-1">

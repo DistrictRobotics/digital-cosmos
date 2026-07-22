@@ -1,24 +1,17 @@
 import { useRef, useState, useMemo, useEffect, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Text, Html, useFBO, useAspect } from "@react-three/drei";
-import { EffectComposer, Bloom, DepthOfField, Noise, Vignette } from "@react-three/postprocessing";
 import * as THREE from "three";
 import type { Mesh, Group, Points, Camera } from "three";
 import PlanetWorlds from "./planet-worlds/PlanetWorlds";
+import WebGpuCanvas from "./WebGpuCanvas";
+import RendererEffects from "./RendererEffects";
 
 /* ─── CONFIG ─── */
 const PLANET_POSITIONS: Record<string, THREE.Vector3> = {};
 
 /* ─── POST-PROCESSING ─── */
-function Effects() {
-  return (
-    <EffectComposer>
-      <Bloom luminanceThreshold={0.15} luminanceSmoothing={0.7} intensity={0.8} />
-      <DepthOfField focusDistance={0} focalLength={0.02} bokehScale={2} />
-      <Vignette eskil={false} offset={0.3} darkness={0.6} />
-    </EffectComposer>
-  );
-}
+// Handled by RendererEffects (auto-selects WebGPU or WebGL effects)
 
 /* ─── STAR FIELD (volumetric) ─── */
 function StarField({ count = 5000 }) {
@@ -478,7 +471,7 @@ export default function SolarSystemScene({
 
   return (
     <div className="fixed inset-0 z-0">
-      <Canvas camera={{ position: [0, 50, 180], fov: 55, near: 0.1, far: 1500 }} gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.2 }}>
+      <WebGpuCanvas camera={{ position: [0, 50, 180], fov: 55, near: 0.1, far: 1500 }}>
         <ambientLight intensity={0.08} />
         <fog attach="fog" args={["#070b14", 200, 1000]} />
 
@@ -499,8 +492,8 @@ export default function SolarSystemScene({
         <HolographicGrid visible={showHolographic} />
         <WorldRenderer focusPlanet={focusPlanet} />
         <CinematicCamera focusPlanet={focusPlanet} introDone={introDone} />
-        <Effects />
-      </Canvas>
+        <RendererEffects />
+      </WebGpuCanvas>
     </div>
   );
 }
