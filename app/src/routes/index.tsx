@@ -2,25 +2,82 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import SolarSystemScene from "../components/SolarSystem";
 import RendererBadge from "../components/RendererBadge";
+import "../styles/cosmos.css";
 
 export const Route = createFileRoute("/")({ component: CosmosPortal });
 
-const PLANET_INFO: Record<string, { name: string; desc: string; tag: string }> = {
-  Sun: { name: "Sun", desc: "Massive plasma core — the gravitational heart of our system.", tag: "ENERGY SOURCE" },
-  Mercury: { name: "Mercury", desc: "Smallest planet. Cratered surface, extreme temperature swings.", tag: "INNER WORLD" },
-  Venus: { name: "Venus", desc: "Earth's toxic twin — sulfuric clouds, crushing atmosphere.", tag: "SISTER PLANET" },
-  Earth: { name: "Earth", desc: "Our home. Liquid water, life, and the DREV global STEM network.", tag: "HUMANITY" },
-  Mars: { name: "Mars", desc: "The Red Planet. Future colonies, robotics labs, and rover technology.", tag: "NEXT FRONTIER" },
-  Jupiter: { name: "Jupiter", desc: "Gas giant. The Great Red Spot, 95 moons, immense magnetic field.", tag: "GIANT" },
-  Saturn: { name: "Saturn", desc: "Ringed world. Ice and rock particles orbit in a vast celestial highway.", tag: "RING WORLD" },
-  Uranus: { name: "Uranus", desc: "Ice giant rotating on its side. Faint rings, 27 moons.", tag: "SIDEWAYS WORLD" },
-  Neptune: { name: "Neptune", desc: "Windiest planet. Deep blue, supersonic storms, farthest from the Sun.", tag: "FINAL FRONTIER" },
+/* ── Real-time UTC clock (matches drev.space tickClock) ── */
+function pad(n: number) { return String(n).padStart(2, "0"); }
+
+function useUtcClock() {
+  const [time, setTime] = useState("");
+  useEffect(() => {
+    const tick = () => {
+      const d = new Date();
+      setTime(`${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())} UTC`);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return time;
+}
+
+/* ── Planet info (matched to drev.space cosmos.html style) ── */
+const PLANET_INFO: Record<string, { name: string; desc: string; tag: string; color: string }> = {
+  Sun: { name: "Sun", desc: "Massive plasma core — the gravitational heart of our system. 1.3M Earths could fit inside.", tag: "G2V STAR", color: "#ffcc33" },
+  Mercury: { name: "Mercury", desc: "Smallest planet. Cratered surface, wild temperature swings from -180°C to 430°C.", tag: "INNER WORLD", color: "#b0a090" },
+  Venus: { name: "Venus", desc: "Earth's toxic twin. 470°C surface, sulfuric acid clouds, crushing 90-atm pressure.", tag: "SISTER PLANET", color: "#e8c878" },
+  Earth: { name: "Earth", desc: "Our home. 71% liquid water, 8 million species, and the DREV global STEM network.", tag: "HUMANITY", color: "#4488cc" },
+  Mars: { name: "Mars", desc: "The Red Planet. Olympus Mons (21km), Valles Marineris, 40% Earth gravity.", tag: "NEXT FRONTIER", color: "#c1442e" },
+  Jupiter: { name: "Jupiter", desc: "Gas giant. 317 Earth masses, 95 moons, Great Red Spot storm bigger than Earth.", tag: "GIANT", color: "#d4a06a" },
+  Saturn: { name: "Saturn", desc: "Ringed world. 95 Earth masses, 146 moons, rings span 280,000 km.", tag: "RING WORLD", color: "#e8d5a0" },
+  Uranus: { name: "Uranus", desc: "Ice giant rotating on its side. 98° axial tilt, 27 moons, -224°C atmosphere.", tag: "SIDEWAYS WORLD", color: "#7ec8e3" },
+  Neptune: { name: "Neptune", desc: "Windiest planet. 2,100 km/h winds, 16 moons, deep blue methane atmosphere.", tag: "FINAL FRONTIER", color: "#3355aa" },
 };
 
+/* ── Satellite constellations (simulated — matches drev.space feed chips) ── */
+const CONSTELLATIONS = [
+  { group: "starlink", label: "Starlink", color: "#00bbdd", count: 42 },
+  { group: "gps", label: "GPS III", color: "#44ff88", count: 31 },
+  { group: "iss", label: "ISS", color: "#ff8844", count: 1 },
+  { group: "hubble", label: "Hubble", color: "#aa66ff", count: 1 },
+  { group: "cubesat", label: "CubeSats", color: "#ffcc00", count: 18 },
+];
+
 function CosmosPortal() {
+  const utc = useUtcClock();
   const [focusPlanet, setFocusPlanet] = useState<string | null>(null);
+  const [introDone, setIntroDone] = useState(false);
+  const [feedVisible, setFeedVisible] = useState<Record<string, boolean>>({
+    starlink: true, gps: true, iss: true, hubble: true, cubesat: true,
+  });
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
   const [showUI, setShowUI] = useState(true);
-  const [scrolled, setScrolled] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+
+  /* ── 20s intro choreography (mirrors drev.space cosmos.html) ── */
+  useEffect(() => {
+    const timer = setTimeout(() => setIntroDone(true), 20000);
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === " ") setIntroDone(true);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => { clearTimeout(timer); window.removeEventListener("keydown", handleKey); };
+  }, []);
+
+  /* ── Tooltip positioning ── */
+  useEffect(() => {
+    if (!tooltip || !tooltipRef.current) return;
+    const el = tooltipRef.current;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    let x = tooltip.x + 12;
+    let y = tooltip.y + 12;
+    if (x + w > window.innerWidth) x = tooltip.x - w - 12;
+    if (y + h > window.innerHeight) y = tooltip.y - h - 12;
+    el.style.transform = `translate(${x}px, ${y}px)`;
+  }, [tooltip]);
 
   const handlePlanetClick = useCallback((name: string) => {
     setFocusPlanet((prev) => (prev === name ? null : name));
@@ -28,192 +85,164 @@ function CosmosPortal() {
 
   const resetView = useCallback(() => setFocusPlanet(null), []);
 
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+  const toggleFeed = useCallback((group: string) => {
+    setFeedVisible((prev) => ({ ...prev, [group]: !prev[group] }));
   }, []);
 
   const planetInfo = focusPlanet ? PLANET_INFO[focusPlanet] : null;
 
   return (
-    <div className="relative w-full min-h-screen bg-cosmos-bg text-cosmos-text overflow-x-hidden">
-      <SolarSystemScene focusPlanet={focusPlanet} onPlanetClick={handlePlanetClick} />
-      <RendererBadge />
+    <div className="relative w-full min-h-screen" style={{ background: "#000" }}>
+      {/* ─── 3D CANVAS (fullscreen, behind everything) ─── */}
+      <SolarSystemScene
+        focusPlanet={focusPlanet}
+        onPlanetClick={handlePlanetClick}
+        onHover={(name, x, y) => setTooltip(name ? { x, y, text: name } : null)}
+        feedVisible={feedVisible}
+        introDone={introDone}
+      />
 
-      {/* ─── TOP BAR — DREV COMMAND INTERFACE ─── */}
-      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="pointer-events-auto">
-            <div className="text-[10px] font-mono tracking-[0.3em] text-cyan-400/50">DREV.SPACE</div>
-            <div className="text-xs font-display font-bold text-white/80">Digital Cosmos</div>
-          </div>
-          <div className="flex items-center gap-4 pointer-events-auto">
-            <a href="https://drev.space" target="_blank" rel="noopener noreferrer" className="text-[11px] font-mono text-cyan-400/50 hover:text-cyan-400 transition-colors px-3 py-1.5 border border-white/5 rounded hover:border-cyan-400/20">
-              ENTER PLATFORM
-            </a>
-          </div>
+      {/* ─── INTRO OVERLAY (20s choreography — matches drev.space) ─── */}
+      <div className={`intro-overlay${introDone ? " done" : ""}`}>
+        <div className="intro-title">DIGITAL COSMOS</div>
+        <div className="intro-sub">An operational universe. Powered by District Robotics.</div>
+        <div className="flex gap-3 items-center">
+          <button onClick={() => setIntroDone(true)} className="btn primary lg">EXPLORE</button>
+          <span className="text-[11px] font-mono" style={{ color: "rgba(255,255,255,0.2)" }}>
+            Esc or Space to skip
+          </span>
         </div>
       </div>
 
-      {/* ─── HOLOGRAPHIC COMMAND DASHBOARD ─── */}
-      <div className="fixed bottom-16 left-6 z-50 pointer-events-none">
-        <div className="glass-card p-3 backdrop-blur-md bg-black/30 border-cyan-500/10">
-          <div className="text-[8px] font-mono tracking-[0.2em] text-cyan-400/30">SYSTEM</div>
-          <div className="text-[10px] font-mono text-cyan-400/50 mt-1">
-            {focusPlanet ? `FOCUS: ${focusPlanet.toUpperCase()}` : "ORBIT: FREE NAV"}
+      {/* ─── HUD TOP BAR (matches drev.space cosmos.html) ─── */}
+      {introDone && (
+        <div className="hud-top" style={{ zIndex: 100 }}>
+          <div className="hud-left">
+            <span className="hud-badge">DREV.SPACE</span>
+            <span className="hud-badge" style={{ color: "rgba(255,255,255,0.15)" }}>|</span>
+            <span className="hud-badge">DIGITAL COSMOS</span>
+            <span className="hud-clock">{utc}</span>
           </div>
-          <div className="flex gap-2 mt-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400/50" />
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400/30" />
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400/20" />
-          </div>
-        </div>
-      </div>
-
-      {/* ─── INTERACTION HINTS ─── */}
-      {!focusPlanet && !scrolled && (
-        <div className="fixed bottom-6 right-6 z-50 pointer-events-none">
-          <div className="glass-card p-3 backdrop-blur-md bg-black/30 border-cyan-500/10">
-            <div className="flex flex-col gap-1.5 text-[9px] font-mono text-cyan-400/40">
-              <span className="flex items-center gap-2">&#x2190; &#x2192; Drag to orbit</span>
-              <span className="flex items-center gap-2">&#x2191; &#x2193; Scroll to zoom</span>
-              <span className="flex items-center gap-2">&#x25CF; Click to explore</span>
+          <div className="hud-right">
+            <div className="hud-feeds">
+              {CONSTELLATIONS.map((c) => (
+                <button
+                  key={c.group}
+                  className="feed-chip"
+                  data-on={feedVisible[c.group] ? "1" : "0"}
+                  onClick={() => toggleFeed(c.group)}
+                >
+                  {c.label} {c.count}
+                </button>
+              ))}
             </div>
+            <a
+              href="https://drev.space/cosmos.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn primary"
+              style={{ padding: "6px 14px", fontSize: "11px", minHeight: "auto" }}
+            >
+              LAUNCH PLATFORM
+            </a>
           </div>
         </div>
       )}
 
-      {/* ─── PLANET INFO PANEL ─── */}
-      {planetInfo && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 glass-card px-6 py-4 flex items-center gap-4 max-w-lg w-[calc(100%-48px)] animate-[fadeUp_0.4s_ease-out] backdrop-blur-md bg-black/40 border-cyan-500/20">
+      {/* ─── TOOLTIP (matches drev.space cosmos-tooltip) ─── */}
+      <div
+        ref={tooltipRef}
+        className={`cosmos-tooltip${tooltip ? " visible" : ""}`}
+        style={{ position: "fixed", zIndex: 10 }}
+      >
+        {tooltip?.text}
+      </div>
+
+      {/* ─── PLANET INFO PANEL (Apple-glass card) ─── */}
+      {introDone && planetInfo && (
+        <div
+          className="glass"
+          style={{
+            position: "fixed",
+            bottom: "24px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 50,
+            display: "flex",
+            alignItems: "center",
+            gap: "16px",
+            padding: "16px 24px",
+            maxWidth: "520px",
+            width: "calc(100% - 48px)",
+            animation: "fadeUp 0.4s ease-out",
+          }}
+        >
+          <div className="w-10 h-10 rounded-full shrink-0" style={{ background: planetInfo.color, boxShadow: `0 0 16px ${planetInfo.color}55` }} />
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="font-display font-bold text-sm text-white">{planetInfo.name}</span>
-              <span className="text-[8px] font-mono tracking-wider text-cyan-400/50 px-1.5 py-0.5 border border-cyan-400/20 rounded">{planetInfo.tag}</span>
+              <span className="text-[9px] font-mono tracking-wider px-2 py-0.5 rounded-full" style={{ background: `${planetInfo.color}22`, color: planetInfo.color }}>
+                {planetInfo.tag}
+              </span>
             </div>
-            <p className="text-[11px] text-cyan-200/60 mt-1 leading-relaxed font-light">{planetInfo.desc}</p>
+            <p className="text-xs mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{planetInfo.desc}</p>
           </div>
-          <button onClick={resetView} className="shrink-0 w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/10">
-            <svg className="w-3 h-3 text-cyan-400/50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18 18 6M6 6l12 12" /></svg>
+          <button
+            onClick={resetView}
+            className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center transition-all"
+            style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}
+          >
+            <svg className="w-3 h-3" style={{ color: "rgba(255,255,255,0.4)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18 18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
       )}
 
+      {/* ─── STEM ACADEMY CTA ─── */}
+      {introDone && !focusPlanet && (
+        <div style={{ position: "fixed", bottom: "24px", right: "24px", zIndex: 45 }}>
+          <a
+            href="https://drev.space/stem-academy.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn glass"
+            style={{ fontSize: "13px", padding: "10px 18px" }}
+          >
+            <span style={{ color: "rgba(255,255,255,0.8)" }}>80 Missions</span>
+            <span style={{ color: "var(--accent)" }}>→</span>
+          </a>
+        </div>
+      )}
+
       {/* ─── RESET VIEW ─── */}
-      {focusPlanet && (
-        <button onClick={resetView} className="fixed top-14 right-6 z-50 glass-card px-3 py-1.5 text-[10px] font-mono text-cyan-400/50 hover:text-cyan-400 transition-colors flex items-center gap-1.5 backdrop-blur-md bg-black/30 border-cyan-500/10">
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0Zm9-4.5v4.5m0 0h4.5M12 12l-3 3" /></svg>
+      {introDone && focusPlanet && (
+        <button
+          onClick={resetView}
+          className="glass"
+          style={{
+            position: "fixed",
+            top: "60px",
+            right: "20px",
+            zIndex: 50,
+            padding: "8px 16px",
+            fontSize: "11px",
+            fontFamily: "var(--font-mono)",
+            color: "rgba(255,255,255,0.5)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0Zm9-4.5v4.5m0 0h4.5M12 12l-3 3" />
+          </svg>
           RESET
         </button>
       )}
 
-      {/* ─── CONTENT SECTIONS ─── */}
-      <div className="relative z-10 mt-[100vh]">
-        {/* What Is */}
-        <section className="py-32" style={{ background: "linear-gradient(180deg, rgba(7,11,20,0.98) 0%, rgba(7,11,20,1) 100%)" }}>
-          <div className="section-inner">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-              <div>
-                <span className="text-[10px] font-mono tracking-[0.3em] text-cyan-400/50 mb-4 block">01 — EXPLORE</span>
-                <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
-                  Navigate a Living <span className="text-gradient">Solar System</span>
-                </h2>
-                <p className="text-cyan-200/50 text-base sm:text-lg leading-relaxed mb-6 font-light">
-                  Every planet above is a real 3D object in an interactive universe. Drag to orbit the Sun, zoom into Earth's blue glow, or click Saturn to examine its rings up close.
-                </p>
-                <p className="text-cyan-200/40 text-base leading-relaxed font-light">
-                  80+ STEM missions await on the full District Robotics platform. Each planet is a gateway to new discoveries, ranks, and cosmic knowledge.
-                </p>
-              </div>
-              <div className="glass-card p-8 aspect-[4/3] flex items-center justify-center overflow-hidden" style={{ borderColor: "rgba(0,212,255,0.1)" }}>
-                <div className="absolute inset-0 opacity-20" style={{ background: "radial-gradient(circle at 30% 50%, rgba(0,212,255,0.2) 0%, transparent 50%), radial-gradient(circle at 70% 50%, rgba(99,102,241,0.15) 0%, transparent 50%)" }} />
-                <div className="relative w-full h-full flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 shadow-lg" style={{ boxShadow: "0 0 30px rgba(0,212,255,0.15)" }} />
-                  <div className="absolute w-32 h-32 rounded-full border border-cyan-400/20 animate-[spin_20s_linear_infinite]" />
-                  <div className="absolute w-48 h-48 rounded-full border border-indigo-400/15 animate-[spin_35s_linear_infinite]" />
-                  <div className="absolute w-64 h-64 rounded-full border border-cyan-400/10 animate-[spin_50s_linear_infinite_reverse]" />
-                  <div className="absolute w-32 h-32 animate-[spin_20s_linear_infinite]"><div className="w-3 h-3 rounded-full bg-green-400 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-lg" /></div>
-                  <div className="absolute w-48 h-48 animate-[spin_35s_linear_infinite]"><div className="w-4 h-4 rounded-full bg-cyan-400 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-lg" /></div>
-                  <div className="absolute w-64 h-64 animate-[spin_50s_linear_infinite_reverse]"><div className="w-2 h-2 rounded-full bg-indigo-400 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2" /></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Planet grid */}
-        <section className="py-32" style={{ background: "linear-gradient(180deg, rgba(7,11,20,1) 0%, rgba(10,15,30,1) 100%)" }}>
-          <div className="section-inner">
-            <div className="text-center mb-16">
-              <span className="text-[10px] font-mono tracking-[0.3em] text-cyan-400/50 mb-4 block">02 — DESTINATIONS</span>
-              <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight">
-                Our Celestial <span className="text-gradient">Neighborhood</span>
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 max-w-5xl mx-auto">
-              {[
-                { name: "Mercury", color: "#b0a090", r: 0.6 },
-                { name: "Venus", color: "#e8c878", r: 0.9 },
-                { name: "Earth", color: "#1a6bff", r: 1.8 },
-                { name: "Mars", color: "#d4513a", r: 0.8 },
-                { name: "Jupiter", color: "#d4a06a", r: 2.5 },
-                { name: "Saturn", color: "#e8d5a0", r: 2.0, ring: true },
-                { name: "Uranus", color: "#7ec8e3", r: 1.5 },
-                { name: "Neptune", color: "#4169e1", r: 1.4 },
-              ].map((p) => (
-                <button key={p.name} onClick={() => { handlePlanetClick(p.name); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                  className="glass-card p-4 text-left group cursor-pointer transition-all duration-300 hover:translate-y-[-2px]" style={{ borderColor: "rgba(0,212,255,0.06)" }}>
-                  <div className="flex items-center gap-3 mb-1.5">
-                    <div className="rounded-full shrink-0" style={{
-                      background: `radial-gradient(circle at 35% 35%, ${p.color}, ${p.color}66)`,
-                      boxShadow: `0 0 12px ${p.color}33`,
-                      width: p.r > 2 ? "36px" : "24px",
-                      height: p.r > 2 ? "36px" : "24px",
-                    }} />
-                    <span className="font-display font-bold text-sm text-white/80">{p.name}</span>
-                  </div>
-                  <span className="text-[9px] font-mono text-cyan-400/30 group-hover:text-cyan-400/60 transition-colors">FOCUS CAMERA &#x2192;</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Launch Portal */}
-        <section className="py-32 min-h-[60vh] flex items-center" style={{ background: "linear-gradient(180deg, rgba(10,15,30,1) 0%, rgba(7,11,20,1) 100%)" }}>
-          <div className="section-inner text-center max-w-3xl mx-auto">
-            <span className="text-[10px] font-mono tracking-[0.3em] text-cyan-400/50 mb-4 block">03 — LAUNCH</span>
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
-              The Future Is Built by <span className="text-gradient">Explorers</span>
-            </h2>
-            <p className="text-cyan-200/40 text-lg max-w-xl mx-auto mb-12 leading-relaxed font-light">
-              This 3D cosmos is just the beginning. On the full District Robotics platform, 80+ STEM missions, live satellite data, and neural-rendered space exploration await.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-              <a href="https://drev.space/cosmos.html" target="_blank" rel="noopener noreferrer" className="cta-orbit">
-                <span>START YOUR JOURNEY</span><span className="orbit-ring" />
-              </a>
-              <a href="https://drev.space" target="_blank" rel="noopener noreferrer" className="cta-gateway text-sm !px-8 !py-3">VISIT DREV.SPACE</a>
-            </div>
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="py-10 border-t" style={{ borderColor: "rgba(0,212,255,0.06)", background: "#070b14" }}>
-          <div className="section-inner flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-[11px] font-mono text-cyan-200/30">
-              <span className="text-white/70 font-display">Digital Cosmos</span> by <a href="https://drev.space" target="_blank" rel="noopener noreferrer" className="text-cyan-400/50 hover:text-cyan-400 transition-colors">District Robotics</a>
-            </div>
-            <div className="flex items-center gap-6 text-[10px] font-mono text-cyan-200/30">
-              <a href="https://drev.space/services.html" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400/60 transition-colors">Services</a>
-              <a href="https://drev.space/stem-academy.html" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400/60 transition-colors">STEM Academy</a>
-              <a href="https://github.com/DistrictRobotics" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400/60 transition-colors">GitHub</a>
-            </div>
-            <div className="text-[10px] font-mono text-cyan-200/30">&copy; {new Date().getFullYear()} DREV.SPACE</div>
-          </div>
-        </footer>
-      </div>
+      <RendererBadge />
     </div>
   );
 }

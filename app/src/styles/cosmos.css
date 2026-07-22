@@ -1,0 +1,346 @@
+/* ============================================================
+   DISTRICT ROBOTICS — DIGITAL COSMOS
+   Mirrors drev.space Apple Design Foundation + iOS 26 Liquid Glass
+   ============================================================ */
+
+/* ── Design Tokens (matching drev.space apple-tokens.css) ── */
+:root {
+  color-scheme: dark;
+
+  --color-primary: #0099bb;
+  --color-primary-on-dark: #00bbdd;
+  --color-canvas: #000000;
+  --color-canvas-parchment: #0b0b0d;
+  --color-ink: #f5f5f7;
+  --color-ink-muted-80: #c7c7cc;
+  --color-ink-muted-48: #86868b;
+
+  --font-display: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-text: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", monospace;
+
+  --t-body: 17px;
+  --radius-pill: 9999px;
+  --radius-lg: 20px;
+
+  /* iOS 26 Liquid Glass */
+  --lg-blur: 22px;
+  --lg-sat: 180%;
+  --lg-tint: rgba(28, 28, 30, 0.58);
+  --lg-edge: rgba(255, 255, 255, 0.10);
+  --lg-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255,255,255,0.06) inset;
+
+  /* District Robotics palette */
+  --cyber: #00d4ff;
+  --violet: #6366f1;
+  --gold: #c88a00;
+  --bg: #000000;
+  --bg-alt: #0b0b0d;
+  --fg: #f5f5f7;
+  --fg-muted: #c7c7cc;
+  --fg-faint: #86868b;
+  --hairline: rgba(255,255,255,0.08);
+  --card-fill: #1c1c1e;
+  --accent: #00bbdd;
+}
+
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-text);
+  font-size: var(--t-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection { background: color-mix(in oklab, var(--accent) 30%, transparent); }
+
+/* ── Typography ── */
+.eyebrow {
+  font-family: var(--font-text);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  text-transform: none;
+}
+
+.headline {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  text-wrap: balance;
+}
+
+.headline.xl { font-size: clamp(48px, 7.5vw, 96px); letter-spacing: -0.035em; }
+.headline.lg { font-size: clamp(36px, 4.6vw, 64px); letter-spacing: -0.028em; }
+.headline.md { font-size: clamp(28px, 3vw, 40px); letter-spacing: -0.022em; }
+
+.lead {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 1.6vw, 24px);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--fg-muted);
+  text-wrap: pretty;
+  max-width: 60ch;
+}
+
+/* ── Glass Card (matches drev.space iOS 26 Liquid Glass) ── */
+.glass {
+  background: var(--lg-tint);
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  border: 1px solid var(--lg-edge);
+  box-shadow: var(--lg-shadow);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Buttons (matching drev.space) ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  min-height: 44px;
+  font-family: var(--font-text);
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.022em;
+  line-height: 1;
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease;
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(0.95); }
+.btn.primary { background: var(--accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.05); }
+.btn.ghost { background: transparent; color: var(--accent); border-color: color-mix(in oklab, var(--accent) 35%, transparent); }
+.btn.ghost:hover { background: color-mix(in oklab, var(--accent) 10%, transparent); }
+.btn.glass { background: var(--lg-tint); color: var(--fg); border: 1px solid var(--lg-edge); backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat)); -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat)); }
+.btn.lg { padding: 16px 28px; font-size: 18px; }
+
+/* ── Bento Grid ── */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.bento-item {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--card-fill);
+  border: 1px solid var(--hairline);
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 28px;
+  color: var(--fg);
+  text-decoration: none;
+  isolation: isolate;
+  transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.bento-item:hover { transform: translateY(-4px); }
+.bento-item:active { transform: scale(0.985); }
+.bento-item.span-3 { grid-column: span 3; }
+.bento-item.span-4 { grid-column: span 4; }
+.bento-item.span-2 { grid-column: span 2; }
+.bento-item.span-6 { grid-column: span 6; }
+.bento-item.tall { min-height: 460px; }
+.bento-item.dark { background: #1c1c1e; border-color: rgba(255,255,255,0.08); }
+.bento-bg { position: absolute; inset: 0; z-index: -1; background-size: cover; background-position: center; transform: scale(1.02); transition: transform 1.2s cubic-bezier(0.2, 0.9, 0.2, 1); }
+.bento-item:hover .bento-bg { transform: scale(1.06); }
+.bento-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent); margin: 0 0 8px; }
+.bento-title { font-family: var(--font-display); font-size: clamp(22px, 2vw, 32px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0 0 8px; text-wrap: balance; }
+.bento-sub { font-size: 15px; color: var(--fg-muted); margin: 0; max-width: 32ch; text-wrap: pretty; }
+.bento-item.has-bg::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,0.55) 100%); }
+
+@media (max-width: 900px) {
+  .bento { grid-template-columns: repeat(2, 1fr); }
+  .bento-item.span-3, .bento-item.span-4, .bento-item.span-6 { grid-column: span 2; }
+  .bento-item.span-2 { grid-column: span 1; }
+}
+
+/* ── Card ── */
+.card {
+  background: var(--card-fill);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+/* ── HUD ── */
+.hud-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.hud-left, .hud-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hud-badge {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--fg-faint);
+  text-transform: uppercase;
+}
+
+.hud-clock {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.hud-feeds {
+  display: flex;
+  gap: 6px;
+}
+
+.feed-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  background: rgba(255,255,255,0.06);
+  color: var(--fg-muted);
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.feed-chip[data-on="1"] {
+  background: rgba(0,187,221,0.15);
+  color: var(--accent);
+  border-color: rgba(0,187,221,0.3);
+}
+
+/* ── Toggle / Switch ── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+/* ── Fullscreen canvas ── */
+.cosmos-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+/* ── Intro overlay ── */
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  transition: opacity 1.5s ease, visibility 1.5s ease;
+  text-align: center;
+  padding: 2rem;
+}
+
+.intro-overlay.done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.intro-title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5vw, 72px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #f5f5f7 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.intro-sub {
+  font-size: clamp(16px, 1.5vw, 20px);
+  color: var(--fg-muted);
+  margin-bottom: 2rem;
+}
+
+/* ── Tooltip ── */
+.cosmos-tooltip {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+  background: var(--lg-tint);
+  backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  -webkit-backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat));
+  border: 1px solid var(--lg-edge);
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.cosmos-tooltip.visible {
+  opacity: 1;
+}
+
+/* ── World palette swatches ── */
+.palette-Mercury { --planet-color: #b0a090; --planet-glow: rgba(176,160,144,0.3); }
+.palette-Venus { --planet-color: #e8c878; --planet-glow: rgba(232,200,120,0.3); }
+.palette-Earth { --planet-color: #4488cc; --planet-glow: rgba(68,136,204,0.3); }
+.palette-Mars { --planet-color: #c1442e; --planet-glow: rgba(193,68,46,0.3); }
+.palette-Jupiter { --planet-color: #d4a06a; --planet-glow: rgba(212,160,106,0.3); }
+.palette-Saturn { --planet-color: #e8d5a0; --planet-glow: rgba(232,213,160,0.3); }
+.palette-Uranus { --planet-color: #7ec8e3; --planet-glow: rgba(126,200,227,0.3); }
+.palette-Neptune { --planet-color: #3355aa; --planet-glow: rgba(51,85,170,0.3); }
