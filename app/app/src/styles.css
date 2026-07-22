@@ -1,4 +1,10 @@
+/* ============================================================
+ * Digital Cosmos v1.1 — Cosmic Design System
+ * Deep space navy + cyan energy. Custom Tailwind v4 theme.
+ * ============================================================ */
+
 @import "tailwindcss";
+
 @theme {
   --color-cosmos-bg: #070b14;
   --color-cosmos-surface: #0f1526;
@@ -11,16 +17,20 @@
   --color-cosmos-text-muted: #94a3b8;
   --color-cosmos-border: #1e293b;
   --color-cosmos-green: #22c55e;
-  --font-display: "Satoshi", system-ui, sans-serif;
-  --font-body: "Inter Tight", system-ui, sans-serif;
+
+  --font-display: "Satoshi", system-ui, -apple-system, sans-serif;
+  --font-body: "Inter Tight", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 }
+
 html { scroll-behavior: auto; }
 body {
   background-color: #070b14; color: #f1f5f9;
-  font-family: "Inter Tight", system-ui, sans-serif;
-  overflow-x: hidden; -webkit-font-smoothing: antialiased;
+  font-family: "Inter Tight", system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -28,21 +38,28 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #070b14; }
 ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+
 .glass-card {
   background: linear-gradient(135deg, rgba(15,21,38,0.8), rgba(19,27,48,0.6));
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(30,41,59,0.6); border-radius: 16px;
+  border: 1px solid rgba(30,41,59,0.6);
+  border-radius: 16px;
 }
+
 .glow-cyan { box-shadow: 0 0 30px rgba(0,212,255,0.15), 0 0 60px rgba(0,212,255,0.05); }
 .glow-violet { box-shadow: 0 0 30px rgba(99,102,241,0.15), 0 0 60px rgba(99,102,241,0.05); }
+
 .text-gradient {
   background: linear-gradient(135deg, #f1f5f9 0%, #00d4ff 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ── CTA Gateway ── */
 .cta-gateway {
   position: relative; display: inline-block; padding: 16px 48px;
   background: transparent; border: 1px solid rgba(0,212,255,0.4); border-radius: 8px;
@@ -67,6 +84,8 @@ body {
 .cta-gateway:hover { color: #fff; border-color: rgba(0,212,255,0.8); transform: translateY(-2px); }
 .cta-gateway:hover::before { opacity: 1; }
 .cta-gateway:hover::after { opacity: 1; }
+
+/* ── Corner bracket CTA ── */
 .cta-bracket {
   position: relative; display: inline-block; padding: 12px 32px;
   color: #00d4ff; font-family: "Inter Tight", system-ui, sans-serif;
@@ -82,6 +101,8 @@ body {
 .cta-bracket::after { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
 .cta-bracket:hover { color: #fff; }
 .cta-bracket:hover::before, .cta-bracket:hover::after { width: calc(100% - 4px); height: calc(100% - 4px); border-color: #6366f1; }
+
+/* ── Orbit pill ── */
 .cta-orbit {
   position: relative; display: inline-flex; align-items: center; gap: 8px;
   padding: 14px 36px;
@@ -101,17 +122,25 @@ body {
   border-color: #00d4ff; transform: scale(1.02);
 }
 .cta-orbit:hover .orbit-ring { transform: rotate(180deg); }
+
+/* ── Section utilities ── */
 .hero-section { position: relative; width: 100%; height: 100vh; min-height: 600px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.hero-parallax-layer { position: absolute; inset: 0; will-change: transform; }
 .section-inner { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
 .metric-numeral { font-family: "Satoshi", system-ui, sans-serif; font-weight: 700; font-size: clamp(3.5rem,10vw,7rem); line-height: 1; letter-spacing: -0.03em; }
+.timeline-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, #00d4ff, #6366f1, transparent); transform: translateX(-50%); }
+
+/* ── Portal rings ── */
 .portal-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(0,212,255,0.1); animation: portalPulse 4s ease-in-out infinite; }
 .portal-ring:nth-child(1) { width: 300px; height: 300px; animation-delay: 0s; }
 .portal-ring:nth-child(2) { width: 400px; height: 400px; animation-delay: 1s; }
 .portal-ring:nth-child(3) { width: 500px; height: 500px; animation-delay: 2s; }
+
 @keyframes portalPulse {
   0%,100% { transform: scale(1); opacity: 0.3; }
   50% { transform: scale(1.1); opacity: 0.6; }
 }
+
 @keyframes particleFloat {
   0%,100% { transform: translateY(0) scale(1); opacity: 0; }
   20% { opacity: 1; }

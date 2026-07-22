@@ -2,21 +2,23 @@ import { Outlet, createRootRouteWithContext, HeadContent, Scripts } from "@tanst
 import type { ReactNode } from "react";
 import appCss from "../styles.css?url";
 
-const TITLE = "Digital Cosmos — District Robotics";
-const DESC = "A living universe. Powered by District Robotics. Explore the STEM Digital Cosmos.";
+const DEFAULT_TITLE = "Digital Cosmos — District Robotics";
+const DEFAULT_DESC = "A living universe. Powered by District Robotics. Explore the STEM Digital Cosmos.";
 
 function buildHead() {
   return {
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: TITLE },
-      { name: "description", content: DESC },
-      { property: "og:title", content: TITLE },
-      { property: "og:description", content: DESC },
+      { title: DEFAULT_TITLE },
+      { name: "description", content: DEFAULT_DESC },
+      { property: "og:title", content: DEFAULT_TITLE },
+      { property: "og:description", content: DEFAULT_DESC },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "/og-image.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: DEFAULT_TITLE },
+      { name: "twitter:description", content: DEFAULT_DESC },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -30,10 +32,27 @@ function buildHead() {
 
 export const Route = createRootRouteWithContext()({
   head: () => buildHead(),
-  component: () => (
-    <html lang="en" className="dark">
-      <head><HeadContent /></head>
-      <body><Outlet /><Scripts /></body>
-    </html>
-  ),
+  component: RootComponent,
 });
+
+function RootShell({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en" className="dark">
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+function RootComponent() {
+  return (
+    <RootShell>
+      <Outlet />
+    </RootShell>
+  );
+}
