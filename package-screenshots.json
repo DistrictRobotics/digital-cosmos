@@ -1,0 +1,11 @@
+{
+  "name": "digital-cosmos-screenshots",
+  "private": true,
+  "scripts": {
+    "capture": "node capture-screenshots.js",
+    "setup": "npm install playwright && npx playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  }
+}
