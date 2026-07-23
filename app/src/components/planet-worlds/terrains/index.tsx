@@ -44,20 +44,24 @@ function generateTerrain(
   width: number, depth: number, segments: number,
   type: string, roughness: number, seed: number
 ): { positions: Float32Array; colors: Float32Array; normals: Float32Array } {
-  const w = segments + 1;
+  // Scale up terrain for proper exploration
+  const scaledWidth = width * 2.5;
+  const scaledDepth = depth * 2.5;
+  const scaledSegments = Math.min(segments * 2, 120);
+  const w = scaledSegments + 1;
   const totalVerts = w * w;
   const positions = new Float32Array(totalVerts * 3);
   const colors = new Float32Array(totalVerts * 3);
   const normals = new Float32Array(totalVerts * 3);
-  const halfW = width / 2, halfD = depth / 2;
+  const halfW = scaledWidth / 2, halfD = scaledDepth / 2;
 
   const colorCache = new Map<string, string>();
 
-  for (let iz = 0; iz <= segments; iz++) {
-    for (let ix = 0; ix <= segments; ix++) {
+  for (let iz = 0; iz <= scaledSegments; iz++) {
+    for (let ix = 0; ix <= scaledSegments; ix++) {
       const idx = (iz * w + ix) * 3;
-      const x = (ix / segments - 0.5) * width;
-      const z = (iz / segments - 0.5) * depth;
+      const x = (ix / scaledSegments - 0.5) * scaledWidth;
+      const z = (iz / scaledSegments - 0.5) * scaledDepth;
 
       let h = 0;
       const nz = (iz + seed) * 0.1, nx = (ix + seed) * 0.1;
@@ -127,8 +131,8 @@ function generateTerrain(
   }
 
   // Compute normals
-  for (let iz = 0; iz < segments; iz++) {
-    for (let ix = 0; ix < segments; ix++) {
+  for (let iz = 0; iz < scaledSegments; iz++) {
+    for (let ix = 0; ix < scaledSegments; ix++) {
       const idx = (iz * w + ix) * 3;
       const right = (iz * w + ix + 1) * 3;
       const down = ((iz + 1) * w + ix) * 3;
@@ -197,9 +201,9 @@ export function WorldTerrain({
 
     // Build indices
     const indices: number[] = [];
-    const w = segments + 1;
-    for (let iz = 0; iz < segments; iz++) {
-      for (let ix = 0; ix < segments; ix++) {
+    const w = scaledSegments + 1;
+    for (let iz = 0; iz < scaledSegments; iz++) {
+      for (let ix = 0; ix < scaledSegments; ix++) {
         const a = iz * w + ix;
         const b = iz * w + ix + 1;
         const c = (iz + 1) * w + ix;
