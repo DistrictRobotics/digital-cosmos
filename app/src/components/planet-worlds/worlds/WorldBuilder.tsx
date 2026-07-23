@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { WorldTerrain, LavaSurface, WaterSurface, IceSurface, CloudLayer } from "../terrains";
 import { DustStorm, AcidRain, Snowfall, AshFall, IceCrystals, Bioluminescence, LightningBolt, Aurora, Bubbles } from "../particles";
 import * as S from "../structures";
+import { LODStructure } from "../../lod/LOD";
 
 /* ═══════════════════════════════════════════
    WORLD BUILDER — renders a world from a config
@@ -84,11 +85,15 @@ export default function WorldBuilder({ config }: { config: WorldConfig }) {
         />
       )}
 
-      {/* Structures */}
+      {/* Structures with LOD */}
       {structuresList.map((s, i) => {
         const Comp = StructureComponents[s.type];
         if (!Comp) return null;
-        return <Comp key={`s-${i}`} position={s.position} {...(s.params || {})} />;
+        return (
+          <LODStructure key={`s-${i}`} position={s.position}>
+            <Comp position={s.position} {...(s.params || {})} />
+          </LODStructure>
+        );
       })}
 
       {/* Particles */}

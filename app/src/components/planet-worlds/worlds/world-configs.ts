@@ -176,7 +176,7 @@ export const WORLD_CONFIGS: Record<string, WorldConfig> = {
     name: "Arctic Research Station", seed: 302,
     terrain: { type: "icy", roughness: 0.3 },
     atmosphere: { color: "#ddeeff", opacity: 0.08, radius: 7 },
-    water: { ice: true },
+    water: { surface: false, ice: true },
     structures: [
       { type: "HabitatDome", position: [0, 0, 0], params: { color: "#ddeeff", glowColor: "#88ccff" } },
       { type: "ResearchModule", position: [1.5, 0, 1.5], params: { color: "#88ccff" } },
@@ -279,7 +279,7 @@ export const WORLD_CONFIGS: Record<string, WorldConfig> = {
     name: "North Pole Ice Mine", seed: 404,
     terrain: { type: "icy", roughness: 0.3 },
     atmosphere: { color: "#ccddff", opacity: 0.06, radius: 7 },
-    water: { ice: true },
+    water: { surface: false, ice: true },
     structures: [
       { type: "DrillRig", position: [0, 0, 0], params: { scale: 1.5 } },
       { type: "IceCutter", position: [1.5, 0, 1.5], params: { scale: 1.2 } },
@@ -446,7 +446,7 @@ export const WORLD_CONFIGS: Record<string, WorldConfig> = {
     name: "Io Volcanic Lab", seed: 602,
     terrain: { type: "volcanic", roughness: 1.5 },
     atmosphere: { color: "rgba(204,102,34,0.06)", opacity: 0.06, radius: 7 },
-    water: { lava: true },
+    water: { surface: false, lava: true },
     structures: [
       { type: "ResearchModule", position: [0, 0, 0], params: { color: "#ff8844" } },
       { type: "GeothermalVent", position: [1.5, 0, 1.5], params: { color: "#ff4400" } },
@@ -461,7 +461,7 @@ export const WORLD_CONFIGS: Record<string, WorldConfig> = {
     name: "Europa Ice Base", seed: 603,
     terrain: { type: "icy", roughness: 0.4 },
     atmosphere: { color: "rgba(136,170,204,0.08)", opacity: 0.08, radius: 7 },
-    water: { ice: true },
+    water: { surface: false, ice: true },
     structures: [
       { type: "HabitatDome", position: [0, 0, 0], params: { color: "#88aacc", glowColor: "#44aaff", radius: 0.5 } },
       { type: "DrillRig", position: [2, 0, 0], params: { scale: 1.2 } },
@@ -556,7 +556,7 @@ export const WORLD_CONFIGS: Record<string, WorldConfig> = {
     name: "Enceladus Ice Base", seed: 702,
     terrain: { type: "icy", roughness: 0.5 },
     atmosphere: { color: "rgba(200,230,240,0.06)", opacity: 0.06, radius: 7 },
-    water: { ice: true },
+    water: { surface: false, ice: true },
     structures: [
       { type: "HabitatDome", position: [0, 0, 0], params: { color: "#cceeef", glowColor: "#88ccff", radius: 0.5 } },
       { type: "DrillRig", position: [2, 0, 0], params: { scale: 1.2 } },
@@ -676,7 +676,7 @@ export const WORLD_CONFIGS: Record<string, WorldConfig> = {
     name: "Triton Geyser Station", seed: 901,
     terrain: { type: "icy", roughness: 0.6 },
     atmosphere: { color: "rgba(68,102,170,0.08)", opacity: 0.08, radius: 7 },
-    water: { ice: true },
+    water: { surface: false, ice: true },
     structures: [
       { type: "HabitatDome", position: [0, 0, 0], params: { color: "#4466aa", glowColor: "#88aaff", radius: 0.5 } },
       { type: "GeothermalVent", position: [1.5, 0, 1.5], params: { color: "#88aaff" } },

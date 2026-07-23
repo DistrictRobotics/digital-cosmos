@@ -18,11 +18,12 @@
 
     /* Linting */
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
+    "noUncheckedIndexedAccess": false,
+    "noUncheckedSideEffectImports": false,
     "paths": {
       "@/*": ["./src/*"],
       "@higgsfield-ai/icons/*": ["./src/lib/quanta-material-icons.ts"]

@@ -12,7 +12,7 @@ function IceSurface() {
   useFrame(() => {
     if (ref.current) {
       ref.current.rotation.y += 0.001;
-      ref.current.material.opacity = 0.15 + Math.sin(Date.now() * 0.0003) * 0.05;
+      (ref.current.material as any).opacity = 0.15 + Math.sin(Date.now() * 0.0003) * 0.05;
     }
   });
   return (
@@ -37,7 +37,7 @@ function ResearchModule({ position }: { position: [number, number, number] }) {
   const glowRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (glowRef.current) {
-      glowRef.current.material.opacity = 0.3 + Math.sin(clock.getElapsedTime() * 0.5 + position[0]) * 0.15;
+      (glowRef.current.material as any).opacity = 0.3 + Math.sin(clock.getElapsedTime() * 0.5 + position[0]) * 0.15;
     }
   });
   return (
@@ -85,7 +85,7 @@ function BioluminescentCreature({ position }: { position: [number, number, numbe
     pulse.current += 0.02;
     if (ref.current) {
       ref.current.position.y = position[1] + Math.sin(clock.getElapsedTime() * 0.3 + position[0]) * 0.15;
-      ref.current.material.emissiveIntensity = 0.2 + Math.sin(pulse.current) * 0.15;
+      (ref.current.material as any).emissiveIntensity = 0.2 + Math.sin(pulse.current) * 0.15;
     }
   });
   return (
@@ -151,7 +151,7 @@ function AuroraGlow() {
   useFrame(({ clock }) => {
     if (ref.current) {
       ref.current.rotation.y += 0.005;
-      ref.current.material.opacity = 0.03 + Math.sin(clock.getElapsedTime() * 0.2) * 0.02;
+      (ref.current.material as any).opacity = 0.03 + Math.sin(clock.getElapsedTime() * 0.2) * 0.02;
     }
   });
   return (

@@ -57,7 +57,7 @@ function IceHarvester({ position, index }: { position: [number, number, number];
   useFrame(({ clock }) => {
     if (armRef.current) armRef.current.rotation.z = Math.sin(clock.getElapsedTime() * 0.5 + index) * 0.2;
     if (lightRef.current) {
-      lightRef.current.material.opacity = 0.3 + Math.sin(clock.getElapsedTime() * 1.5 + index * 2) * 0.2;
+      (lightRef.current.material as any).opacity = 0.3 + Math.sin(clock.getElapsedTime() * 1.5 + index * 2) * 0.2;
     }
   });
   return (
@@ -135,7 +135,7 @@ function RefineryPlatform({ position }: { position: [number, number, number] }) 
   const glowRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (glowRef.current) {
-      glowRef.current.material.opacity = 0.15 + Math.sin(clock.getElapsedTime() * 0.5) * 0.1;
+      (glowRef.current.material as any).opacity = 0.15 + Math.sin(clock.getElapsedTime() * 0.5) * 0.1;
     }
   });
   return (

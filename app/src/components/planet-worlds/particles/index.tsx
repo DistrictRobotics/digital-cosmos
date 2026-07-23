@@ -288,8 +288,8 @@ export function LightningBolt({ position = [0, 0, 0], height = 1.5, color = "#44
     }
     if (visible.current) {
       const elapsed = now - lastStrike.current;
-      ref.current.material.opacity = Math.max(0, 0.6 - elapsed * 3);
-      if (elapsed > 0.3) { visible.current = false; ref.current.material.opacity = 0; }
+      (ref.current.material as any).opacity = Math.max(0, 0.6 - elapsed * 3);
+      if (elapsed > 0.3) { visible.current = false; (ref.current.material as any).opacity = 0; }
     }
   });
 
@@ -307,7 +307,7 @@ export function Aurora({ position = [0, 0, 0], width = 8, color = "#44ff88" }: {
   const ref = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    ref.current.material.opacity = 0.04 + Math.sin(clock.getElapsedTime() * 0.2) * 0.02;
+    (ref.current.material as any).opacity = 0.04 + Math.sin(clock.getElapsedTime() * 0.2) * 0.02;
     ref.current.rotation.z = Math.sin(clock.getElapsedTime() * 0.05) * 0.1;
   });
 

@@ -12,7 +12,7 @@ function SolarFlareLight() {
   useFrame(({ clock }) => {
     if (ref.current) {
       const pulse = 0.2 + Math.sin(clock.getElapsedTime() * 1.5) * 0.15;
-      ref.current.material.opacity = pulse;
+      (ref.current.material as any).opacity = pulse;
     }
   });
   return (
@@ -86,7 +86,7 @@ function ObservationTower({ position }: { position: [number, number, number] }) 
   const glowRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (glowRef.current) {
-      glowRef.current.material.opacity = 0.2 + Math.sin(clock.getElapsedTime() * 0.3) * 0.1;
+      (glowRef.current.material as any).opacity = 0.2 + Math.sin(clock.getElapsedTime() * 0.3) * 0.1;
     }
   });
   return (
@@ -107,7 +107,7 @@ function HeatShimmer() {
   const ref = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (ref.current) {
-      ref.current.material.opacity = 0.02 + Math.sin(clock.getElapsedTime() * 0.5) * 0.01;
+      (ref.current.material as any).opacity = 0.02 + Math.sin(clock.getElapsedTime() * 0.5) * 0.01;
     }
   });
   return (

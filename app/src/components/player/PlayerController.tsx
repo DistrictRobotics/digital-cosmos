@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Group, Mesh, Object3D } from "three";
+import { playFootstep } from "../audio/audio-engine";
 
 /* ─── Types ─── */
 export type PlayerMode = "walk" | "drone" | "rover" | "craft";
@@ -94,7 +95,7 @@ function HumanoidCharacter({ moving, sprinting }: { moving: boolean; sprinting: 
     // Visor
     const visor = new THREE.Mesh(
       new THREE.SphereGeometry(0.04, 8, 8),
-      new THREE.MeshBasicMaterial({ color: "#00d4ff", emissive: "#00d4ff", emissiveIntensity: 0.8, transparent: true, opacity: 0.6 })
+      new THREE.MeshBasicMaterial({ color: "#00d4ff", transparent: true, opacity: 0.6 })
     );
     visor.position.set(0, 0.33, 0.055);
     visor.scale.set(1, 0.4, 0.3);
@@ -244,12 +245,12 @@ function RoverModel() {
     }
     // Headlights
     for (const side of [-1, 1]) {
-      const hl = new THREE.Mesh(new THREE.SphereGeometry(0.008, 6, 6), new THREE.MeshBasicMaterial({ color: "#00d4ff", emissive: "#00d4ff", emissiveIntensity: 0.5 }));
+      const hl = new THREE.Mesh(new THREE.SphereGeometry(0.008, 6, 6), new THREE.MeshBasicMaterial({ color: "#00d4ff" }));
       hl.position.set(side * 0.05, 0.04, -0.15); g.add(hl);
     }
     // Tail lights
     for (const side of [-1, 1]) {
-      const tl = new THREE.Mesh(new THREE.SphereGeometry(0.006, 6, 6), new THREE.MeshBasicMaterial({ color: "#ff4444", emissive: "#ff4444", emissiveIntensity: 0.3 }));
+      const tl = new THREE.Mesh(new THREE.SphereGeometry(0.006, 6, 6), new THREE.MeshBasicMaterial({ color: "#ff4444" }));
       tl.position.set(side * 0.05, 0.04, 0.15); g.add(tl);
     }
   }, []);
@@ -398,6 +399,11 @@ export default function PlayerController({
     if (md.length() > 0) md.normalize();
 
     const moving = md.length() > 0;
+
+    // Footstep sounds (walk mode only)
+    if (mode === "walk" && moving && grounded.current) {
+      playFootstep(k.has("ShiftLeft"));
+    }
 
     // ─── Mode-specific physics ───
     if (mode === "drone" || mode === "craft") {

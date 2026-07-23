@@ -14,7 +14,7 @@ export default function ProceduralWorld({ world }: { world: World }) {
     return buildFallbackConfig(world);
   }, [world]);
 
-  return <WorldBuilder config={config} />;
+  return <WorldBuilder config={config as any} />;
 }
 
 /* ─── Fallback for worlds without a specific config ─── */

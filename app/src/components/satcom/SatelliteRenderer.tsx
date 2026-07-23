@@ -1,9 +1,8 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import type { MutableRefObject } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { Group, InstancedMesh, Mesh } from "three";
-import { twoline2satrec, propagate, eciToGeodetic, geodeticToEcf } from "satellite.js";
 import type { SatelliteEntry, SatelliteBus } from "./satellite-catalog";
 import { buildSatelliteModel } from "./Satellite3D";
 
@@ -80,7 +79,7 @@ function getBusGeometry(bus: SatelliteBus): BusGeometry | null {
 /* ─── Parsed TLE ─── */
 interface ParsedSat {
   entry: SatelliteEntry;
-  satrec: ReturnType<typeof twoline2satrec>;
+  satrec: any;
   bus: SatelliteBus;
 }
 
@@ -122,10 +121,17 @@ export default function SatelliteRenderer({
   const colorsRef = useRef<Map<SatelliteBus, Float32Array>>(new Map());
   const countsRef = useRef<Map<SatelliteBus, number>>(new Map());
   const [busList, setBusList] = useState<SatelliteBus[]>([]);
+  const satJsRef = useRef<any>(null);
+
+  // Load satellite.js lazily
+  useEffect(() => {
+    import("satellite.js").then((mod) => { satJsRef.current = mod; });
+  }, []);
 
   // Phase 1: Parse TLEs in background batches
   useEffect(() => {
-    if (catalog.length === 0) return;
+    if (catalog.length === 0 || !satJsRef.current) return;
+    const { twoline2satrec } = satJsRef.current;
     parsedRef.current = [];
     batchRef.current = 0;
     setReady(false);
@@ -158,7 +164,8 @@ export default function SatelliteRenderer({
 
   // Phase 3: Update instance matrices each frame
   useFrame(({ clock }) => {
-    if (!ready) return;
+    if (!ready || !satJsRef.current) return;
+    const { propagate, eciToGeodetic, geodeticToEcf } = satJsRef.current;
     const date = new Date(Date.now() + clock.getElapsedTime() * 1000 * 60);
     const dummy = new THREE.Object3D();
     const wp = new THREE.Vector3();
@@ -347,61 +354,5 @@ function TrackedSatelliteModel({ catalog, trackedSatellite }: {
     } catch {}
   });
 
-  return <group ref={grp} scale={0.15} />;
-}
-
-/* ─── Camera tracker ─── */
-export function SatelliteCameraTracker({
-  trackedSatellite, catalog, active,
-}: {
-  trackedSatellite: SatelliteEntry | null; catalog: SatelliteEntry[]; active: boolean;
-}) {
-  const { camera } = useThree();
-  const tgt = useRef(new THREE.Vector3(0, 50, 180));
-  const cur = useRef(new THREE.Vector3(0, 50, 180));
-  const lerp = useRef(1);
-  const tracking = useRef(false);
-
-  let satrec: ReturnType<typeof twoline2satrec> | null = null;
-  if (trackedSatellite) {
-    const e = catalog.find((s) => s.noradId === trackedSatellite.noradId);
-    if (e) { try { satrec = twoline2satrec(e.tleLine1, e.tleLine2); } catch {} }
-  }
-
-  useFrame(({ clock }) => {
-    if (!active || !trackedSatellite || !satrec) {
-      if (tracking.current) { tgt.current.set(0, 50, 180); lerp.current = 0; tracking.current = false; }
-      if (lerp.current < 1) {
-        lerp.current = Math.min(lerp.current + 0.02, 1);
-        const s = lerp.current * lerp.current * (3 - 2 * lerp.current);
-        camera.position.lerpVectors(cur.current, tgt.current, s);
-        camera.lookAt(0, 0, 0);
-      }
-      return;
-    }
-    const date = new Date(Date.now() + clock.getElapsedTime() * 1000 * 60);
-    try {
-      const pv = propagate(satrec, date);
-      if (!pv || !pv.position) return;
-      const gd = eciToGeodetic(pv.position, 0);
-      const ecf = geodeticToEcf(gd);
-      const swp = new THREE.Vector3(
-        EARTH_POS.x + (ecf.x as number) * KM_TO_SCENE,
-        EARTH_POS.y + (ecf.z as number) * KM_TO_SCENE,
-        EARTH_POS.z + (-(ecf.y as number)) * KM_TO_SCENE
-      );
-      tgt.current.set(swp.x + 0.8, swp.y + 0.5, swp.z + 0.8);
-      if (!tracking.current) { cur.current.copy(camera.position); lerp.current = 0; tracking.current = true; }
-      if (lerp.current < 1) {
-        lerp.current = Math.min(lerp.current + 0.03, 1);
-        const s = lerp.current * lerp.current * (3 - 2 * lerp.current);
-        camera.position.lerpVectors(cur.current, tgt.current, s);
-      } else {
-        camera.position.lerp(tgt.current, 0.05);
-      }
-      camera.lookAt(swp);
-    } catch {}
-  });
-
-  return null;
+return null;
 }

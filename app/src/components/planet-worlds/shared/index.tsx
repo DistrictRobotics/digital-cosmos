@@ -26,13 +26,13 @@ export function ProceduralTerrain({
     g.rotateX(-Math.PI / 2);
     const pos = g.attributes.position.array as Float32Array;
     /* Generate random bump centers */
-    const centers: [number, number, number][] = [];
+const centers: [number, number, number, number][] = [];
     for (let i = 0; i < bumps; i++) {
       const cx = (Math.random() - 0.5) * width * 0.8;
       const cz = (Math.random() - 0.5) * depth * 0.8;
       const r = 4 + Math.random() * 10;
       const h = 0.3 + Math.random() * heightScale;
-      centers.push([cx, cz, r, h] as any);
+      centers.push([cx, cz, r, h]);
     }
     for (let i = 0; i < pos.length; i += 3) {
       let h = 0;
@@ -103,7 +103,7 @@ function WindowGrid({ position, cols, rows, spacing, w }: any) {
     if (!ref.current) return;
     ref.current.children.forEach((child: any, i) => {
       if (child.material) {
-        child.material.opacity = 0.3 + Math.sin(clock.getElapsedTime() * 0.5 + i * 1.3) * 0.2 + 0.3;
+        (child.material as any).opacity = 0.3 + Math.sin(clock.getElapsedTime() * 0.5 + i * 1.3) * 0.2 + 0.3;
       }
     });
   });

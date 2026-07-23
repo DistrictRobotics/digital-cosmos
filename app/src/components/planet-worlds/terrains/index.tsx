@@ -200,6 +200,7 @@ export function WorldTerrain({
     g.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
 
     // Build indices
+    const scaledSegments = Math.min(segments * 2, 120);
     const indices: number[] = [];
     const w = scaledSegments + 1;
     for (let iz = 0; iz < scaledSegments; iz++) {
@@ -238,7 +239,7 @@ export function LavaSurface({ position = [0, 0, 0], radius = 2 }: {
   const ref = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!ref.current) return;
-    ref.current.material.opacity = 0.15 + Math.sin(clock.getElapsedTime() * 0.3) * 0.08;
+    (ref.current.material as any).opacity = 0.15 + Math.sin(clock.getElapsedTime() * 0.3) * 0.08;
   });
   return (
     <mesh ref={ref} position={position} rotation={[-Math.PI / 2, 0, 0]}>

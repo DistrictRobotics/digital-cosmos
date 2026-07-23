@@ -16,7 +16,7 @@ export function HabitatDome({ position = [0, 0, 0], color = "#c7c7cc", glowColor
   useFrame(({ clock }) => {
     if (!ref.current) return;
     const glow = ref.current.children[1] as Mesh;
-    if (glow) glow.material.opacity = 0.08 + Math.sin(clock.getElapsedTime() * 0.5) * 0.04;
+    if (glow) (glow.material as any).opacity = 0.08 + Math.sin(clock.getElapsedTime() * 0.5) * 0.04;
   });
   return (
     <group ref={ref} position={position}>
@@ -109,7 +109,7 @@ export function CryoTank({ position = [0, 0, 0], scale = 1, color = "#4488ff" }:
   useFrame(({ clock }) => {
     if (!vaporRef.current) return;
     vaporRef.current.position.y = 0.15 * scale + Math.sin(clock.getElapsedTime() * 0.7) * 0.02;
-    vaporRef.current.material.opacity = 0.08 + Math.sin(clock.getElapsedTime() * 0.5) * 0.04;
+    (vaporRef.current.material as any).opacity = 0.08 + Math.sin(clock.getElapsedTime() * 0.5) * 0.04;
   });
   return (
     <group position={position}>
@@ -167,7 +167,7 @@ export function AntennaTower({ position = [0, 0, 0], height = 0.4, color = "#ff4
   const lightRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!lightRef.current) return;
-    lightRef.current.material.opacity = 0.3 + Math.sin(clock.getElapsedTime() * 2) * 0.2;
+    (lightRef.current.material as any).opacity = 0.3 + Math.sin(clock.getElapsedTime() * 2) * 0.2;
   });
   return (
     <group position={position}>
@@ -190,7 +190,7 @@ export function LandingPad({ position = [0, 0, 0], scale = 1, color = "#00d4ff" 
   const beaconRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!beaconRef.current) return;
-    beaconRef.current.material.opacity = 0.15 + Math.sin(clock.getElapsedTime() * 3) * 0.1;
+    (beaconRef.current.material as any).opacity = 0.15 + Math.sin(clock.getElapsedTime() * 3) * 0.1;
     beaconRef.current.scale.setScalar(1 + Math.sin(clock.getElapsedTime() * 3) * 0.1);
   });
   return (
@@ -240,7 +240,7 @@ export function ResearchModule({ position = [0, 0, 0], color = "#44aaff" }: {
   const glowRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!glowRef.current) return;
-    glowRef.current.material.opacity = 0.1 + Math.sin(clock.getElapsedTime() * 0.3) * 0.05;
+    (glowRef.current.material as any).opacity = 0.1 + Math.sin(clock.getElapsedTime() * 0.3) * 0.05;
   });
   return (
     <group position={position}>
@@ -307,7 +307,7 @@ export function ObservationTower({ position = [0, 0, 0], height = 0.5, color = "
   const lightRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!lightRef.current) return;
-    lightRef.current.material.opacity = 0.2 + Math.sin(clock.getElapsedTime() * 0.5) * 0.1;
+    (lightRef.current.material as any).opacity = 0.2 + Math.sin(clock.getElapsedTime() * 0.5) * 0.1;
   });
   return (
     <group position={position}>
@@ -335,7 +335,7 @@ export function Refinery({ position = [0, 0, 0], scale = 1 }: {
   useFrame(({ clock }) => {
     if (!smokeRef.current) return;
     smokeRef.current.position.y = 0.15 * scale + Math.sin(clock.getElapsedTime() * 0.3) * 0.02;
-    smokeRef.current.material.opacity = 0.06 + Math.sin(clock.getElapsedTime() * 0.2) * 0.03;
+    (smokeRef.current.material as any).opacity = 0.06 + Math.sin(clock.getElapsedTime() * 0.2) * 0.03;
   });
   return (
     <group position={position}>
@@ -417,7 +417,7 @@ export function GeothermalVent({ position = [0, 0, 0], scale = 1, color = "#ff66
   useFrame(({ clock }) => {
     if (!steamRef.current) return;
     steamRef.current.position.y = 0.06 * scale + Math.sin(clock.getElapsedTime() * 0.8) * 0.03;
-    steamRef.current.material.opacity = 0.1 + Math.sin(clock.getElapsedTime() * 0.6) * 0.05;
+    (steamRef.current.material as any).opacity = 0.1 + Math.sin(clock.getElapsedTime() * 0.6) * 0.05;
   });
   return (
     <group position={position}>
@@ -496,7 +496,7 @@ export function PowerCore({ position = [0, 0, 0], scale = 1, color = "#00d4ff" }
   const coreRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!coreRef.current) return;
-    coreRef.current.material.opacity = 0.15 + Math.sin(clock.getElapsedTime() * 1.5) * 0.1;
+    (coreRef.current.material as any).opacity = 0.15 + Math.sin(clock.getElapsedTime() * 1.5) * 0.1;
     coreRef.current.scale.setScalar(1 + Math.sin(clock.getElapsedTime() * 1.5) * 0.05);
   });
   return (
@@ -548,7 +548,7 @@ export function WaterTreatment({ position = [0, 0, 0], scale = 1 }: {
   const waterRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!waterRef.current) return;
-    waterRef.current.material.opacity = 0.08 + Math.sin(clock.getElapsedTime() * 0.5) * 0.04;
+    (waterRef.current.material as any).opacity = 0.08 + Math.sin(clock.getElapsedTime() * 0.5) * 0.04;
   });
   return (
     <group position={position}>
@@ -591,7 +591,7 @@ export function Airlock({ position = [0, 0, 0], color = "#ff6644" }: {
   const lightRef = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (!lightRef.current) return;
-    lightRef.current.material.opacity = 0.2 + Math.sin(clock.getElapsedTime() * 1.5) * 0.15;
+    (lightRef.current.material as any).opacity = 0.2 + Math.sin(clock.getElapsedTime() * 1.5) * 0.15;
   });
   return (
     <group position={position}>

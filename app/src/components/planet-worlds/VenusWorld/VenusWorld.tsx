@@ -78,7 +78,7 @@ function CloudTower({ position }: { position: [number, number, number] }) {
   const ref = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (ref.current) {
-      ref.current.material.opacity = 0.1 + Math.sin(clock.getElapsedTime() * 0.2) * 0.05;
+      (ref.current.material as any).opacity = 0.1 + Math.sin(clock.getElapsedTime() * 0.2) * 0.05;
     }
   });
   return (
@@ -124,7 +124,7 @@ function LightningStorm() {
       const mesh = refs.current[i];
       if (mesh) {
         const flash = Math.max(0, Math.sin(clock.getElapsedTime() * bolt.speed * 2 + i * 3));
-        mesh.material.opacity = flash > 0.95 ? 0.6 : 0;
+        (mesh.material as any).opacity = flash > 0.95 ? 0.6 : 0;
         if (flash > 0.95 && Math.random() < 0.3) {
           // Reposition zigzag slightly
         }
@@ -136,12 +136,13 @@ function LightningStorm() {
     <group>
       {bolts.map((bolt, i) => {
         const points = bolt.points.flat();
-        const geo = new THREE.BufferGeometry();
-        geo.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
         return (
-          <line key={i} geometry={geo}>
-            <lineBasicMaterial color="#ffcc88" transparent opacity={0} />
-          </line>
+          <primitive key={i} object={(() => {
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute("position", new THREE.Float32BufferAttribute(points, 3));
+            const mat = new THREE.LineBasicMaterial({ color: "#ffcc88", transparent: true, opacity: 0 });
+            return new THREE.Line(geo, mat);
+          })()} />
         );
       })}
     </group>

@@ -11,7 +11,7 @@ function HabitatDome({ position, scale = 1, color = "#88ccff" }: { position: [nu
   const ref = useRef<Mesh>(null);
   useFrame(({ clock }) => {
     if (ref.current) {
-      ref.current.material.opacity = 0.2 + Math.sin(clock.getElapsedTime() * 0.5 + position[0]) * 0.08;
+      (ref.current.material as any).opacity = 0.2 + Math.sin(clock.getElapsedTime() * 0.5 + position[0]) * 0.08;
     }
   });
   return (

@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo, useEffect, useCallback } from "react";
+import { useRef, useState, useMemo, useEffect, useCallback, lazy, Suspense } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Text, Html, useFBO, useAspect } from "@react-three/drei";
 import * as THREE from "three";
@@ -6,8 +6,10 @@ import type { Mesh, Group, Points, Camera } from "three";
 import PlanetWorlds from "./planet-worlds/PlanetWorlds";
 import WebGpuCanvas from "./WebGpuCanvas";
 import RendererEffects from "./RendererEffects";
-import SatelliteRenderer, { SatelliteCameraTracker } from "./satcom/SatelliteRenderer";
+import SatelliteCameraTracker from "./satcom/SatelliteCameraTracker";
 import type { SatelliteEntry } from "./satcom/satellite-catalog";
+
+const SatelliteRenderer = lazy(() => import("./satcom/SatelliteRenderer"));
 
 /* ─── CONFIG ─── */
 const PLANET_POSITIONS: Record<string, THREE.Vector3> = {};
@@ -465,7 +467,7 @@ function WorldRenderer({ focusPlanet }: { focusPlanet: string | null }) {
 
   return (
     <group ref={worldRef} visible={false}>
-      <PlanetWorlds focusPlanet={focusPlanet} />
+      <PlanetWorlds focusPlanet={focusPlanet} satelliteCatalog={satelliteCatalog} trackedSatellite={trackedSatellite} />
     </group>
   );
 }
@@ -532,11 +534,13 @@ export default function SolarSystemScene({
         <SatelliteConstellations feedVisible={feedVisible} />
 
         {/* Real-time TLE satellite rendering around Earth */}
-        <SatelliteRenderer
-          catalog={satelliteCatalog}
-          feedVisible={feedVisible}
-          trackedSatellite={trackedSatellite}
-        />
+        <Suspense fallback={null}>
+          <SatelliteRenderer
+            catalog={satelliteCatalog}
+            feedVisible={feedVisible}
+            trackedSatellite={trackedSatellite}
+          />
+        </Suspense>
 
         {/* Camera tracking for satellite */}
         <SatelliteCameraTracker
