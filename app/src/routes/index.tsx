@@ -133,6 +133,8 @@ function CosmosPortal() {
         onHover={(name, x, y) => setTooltip(name ? { x, y, text: name } : null)}
         feedVisible={feedVisible}
         introDone={introDone}
+        trackedSatellite={trackedSatellite}
+        satelliteCatalog={satelliteCatalog}
       />
 
       {/* ─── INTRO OVERLAY ─── */}
@@ -283,6 +285,57 @@ function CosmosPortal() {
           </svg>
           RESET
         </button>
+      )}
+
+      {/* ─── SATELLITE CONTROL INTERFACE ─── */}
+      {introDone && trackedSatellite && !satcomOpen && (
+        <div
+          className="glass"
+          style={{
+            position: "fixed",
+            bottom: "24px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 50,
+            padding: "12px 20px",
+            maxWidth: "480px",
+            width: "calc(100% - 48px)",
+            animation: "fadeUp 0.3s ease-out",
+          }}
+        >
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs">🛰️</span>
+              <span className="font-display font-bold text-sm text-white">{trackedSatellite.name}</span>
+              <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(0,212,255,0.12)", color: "#00d4ff" }}>
+                TRACKING
+              </span>
+            </div>
+            <button
+              onClick={() => setTrackedSatellite(null)}
+              className="w-6 h-6 rounded-full flex items-center justify-center"
+              style={{ background: "rgba(255,255,255,0.06)" }}
+            >
+              <svg className="w-3 h-3" style={{ color: "rgba(255,255,255,0.4)" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="flex items-center gap-3 text-[9px] font-mono" style={{ color: "rgba(255,255,255,0.4)" }}>
+            <span>NORAD {trackedSatellite.noradId}</span>
+            <span>·</span>
+            <span>{trackedSatellite.perigee}-{trackedSatellite.apogee} km</span>
+            <span>·</span>
+            <span>{trackedSatellite.inclination.toFixed(1)}° inc</span>
+            <button
+              onClick={() => setSatcomOpen(true)}
+              className="ml-auto px-2 py-1 rounded text-[8px] font-mono tracking-wider"
+              style={{ background: "rgba(0,212,255,0.08)", color: "#00d4ff" }}
+            >
+              DETAILS
+            </button>
+          </div>
+        </div>
       )}
 
       {/* ─── SATCOM LOADING INDICATOR ─── */}

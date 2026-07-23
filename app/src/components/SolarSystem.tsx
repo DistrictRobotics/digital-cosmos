@@ -6,6 +6,8 @@ import type { Mesh, Group, Points, Camera } from "three";
 import PlanetWorlds from "./planet-worlds/PlanetWorlds";
 import WebGpuCanvas from "./WebGpuCanvas";
 import RendererEffects from "./RendererEffects";
+import SatelliteRenderer, { SatelliteCameraTracker } from "./satcom/SatelliteRenderer";
+import type { SatelliteEntry } from "./satcom/satellite-catalog";
 
 /* ─── CONFIG ─── */
 const PLANET_POSITIONS: Record<string, THREE.Vector3> = {};
@@ -497,12 +499,16 @@ export default function SolarSystemScene({
   onHover,
   feedVisible,
   introDone: parentIntroDone,
+  trackedSatellite,
+  satelliteCatalog,
 }: {
   focusPlanet: string | null;
   onPlanetClick: (n: string) => void;
   onHover: (n: string | null, x?: number, y?: number) => void;
   feedVisible: Record<string, boolean>;
   introDone: boolean;
+  trackedSatellite: SatelliteEntry | null;
+  satelliteCatalog: SatelliteEntry[];
 }) {
   const [showHolographic, setShowHolographic] = useState(false);
 
@@ -522,8 +528,22 @@ export default function SolarSystemScene({
 
         <OrbitRings />
 
-        {/* Satellite constellations (like drev.space feed chips) */}
+        {/* Satellite constellations */}
         <SatelliteConstellations feedVisible={feedVisible} />
+
+        {/* Real-time TLE satellite rendering around Earth */}
+        <SatelliteRenderer
+          catalog={satelliteCatalog}
+          feedVisible={feedVisible}
+          trackedSatellite={trackedSatellite}
+        />
+
+        {/* Camera tracking for satellite */}
+        <SatelliteCameraTracker
+          trackedSatellite={trackedSatellite}
+          catalog={satelliteCatalog}
+          active={!focusPlanet} // Only track when not focused on a planet
+        />
 
         <Planet name="Mercury" radius={0.6} orbitRadius={10} speed={0.6} color="#b0a090" focusPlanet={focusPlanet} onClick={onPlanetClick} onHover={onHover} />
         <Planet name="Venus" radius={0.9} orbitRadius={16} speed={0.45} color="#e8c878" focusPlanet={focusPlanet} onClick={onPlanetClick} onHover={onHover} />
