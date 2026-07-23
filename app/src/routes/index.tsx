@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import SolarSystemScene from "../components/SolarSystem";
 import RendererBadge from "../components/RendererBadge";
+import SatcomPanel from "../components/satcom/SatcomPanel";
+import { fetchAllTle, type SatelliteEntry } from "../components/satcom/satellite-catalog";
 import "../styles/cosmos.css";
 
 export const Route = createFileRoute("/")({ component: CosmosPortal });
@@ -23,7 +25,7 @@ function useUtcClock() {
   return time;
 }
 
-/* ── Planet info (matched to drev.space cosmos.html style) ── */
+/* ── Planet info ── */
 const PLANET_INFO: Record<string, { name: string; desc: string; tag: string; color: string }> = {
   Sun: { name: "Sun", desc: "Massive plasma core — the gravitational heart of our system. 1.3M Earths could fit inside.", tag: "G2V STAR", color: "#ffcc33" },
   Mercury: { name: "Mercury", desc: "Smallest planet. Cratered surface, wild temperature swings from -180°C to 430°C.", tag: "INNER WORLD", color: "#b0a090" },
@@ -36,7 +38,7 @@ const PLANET_INFO: Record<string, { name: string; desc: string; tag: string; col
   Neptune: { name: "Neptune", desc: "Windiest planet. 2,100 km/h winds, 16 moons, deep blue methane atmosphere.", tag: "FINAL FRONTIER", color: "#3355aa" },
 };
 
-/* ── Satellite constellations (simulated — matches drev.space feed chips) ── */
+/* ── Feed constellations ── */
 const CONSTELLATIONS = [
   { group: "starlink", label: "Starlink", color: "#00bbdd", count: 42 },
   { group: "gps", label: "GPS III", color: "#44ff88", count: 31 },
@@ -53,10 +55,33 @@ function CosmosPortal() {
     starlink: true, gps: true, iss: true, hubble: true, cubesat: true,
   });
   const [tooltip, setTooltip] = useState<{ x: number; y: number; text: string } | null>(null);
-  const [showUI, setShowUI] = useState(true);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
-  /* ── 20s intro choreography (mirrors drev.space cosmos.html) ── */
+  /* ── SATCOM state ── */
+  const [satcomOpen, setSatcomOpen] = useState(false);
+  const [satelliteCatalog, setSatelliteCatalog] = useState<SatelliteEntry[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogProgress, setCatalogProgress] = useState(0);
+  const [catalogTotal, setCatalogTotal] = useState(0);
+  const [trackedSatellite, setTrackedSatellite] = useState<SatelliteEntry | null>(null);
+
+  /* ── Fetch TLE catalog on mount ── */
+  useEffect(() => {
+    if (satelliteCatalog.length > 0) return;
+    setCatalogLoading(true);
+    fetchAllTle((loaded, total) => {
+      setCatalogProgress(loaded);
+      setCatalogTotal(total);
+    }).then((catalog) => {
+      setSatelliteCatalog(catalog);
+      setCatalogLoading(false);
+    }).catch((err) => {
+      console.error("TLE fetch failed:", err);
+      setCatalogLoading(false);
+    });
+  }, []);
+
+  /* ── 20s intro choreography ── */
   useEffect(() => {
     const timer = setTimeout(() => setIntroDone(true), 20000);
     const handleKey = (e: KeyboardEvent) => {
@@ -89,11 +114,19 @@ function CosmosPortal() {
     setFeedVisible((prev) => ({ ...prev, [group]: !prev[group] }));
   }, []);
 
+  const handleTrackSatellite = useCallback((sat: SatelliteEntry) => {
+    setTrackedSatellite((prev) => prev?.noradId === sat.noradId ? null : sat);
+  }, []);
+
+  const handleToggleConstellation = useCallback((groupId: string, visible: boolean) => {
+    setFeedVisible((prev) => ({ ...prev, [groupId]: visible }));
+  }, []);
+
   const planetInfo = focusPlanet ? PLANET_INFO[focusPlanet] : null;
 
   return (
     <div className="relative w-full min-h-screen" style={{ background: "#000" }}>
-      {/* ─── 3D CANVAS (fullscreen, behind everything) ─── */}
+      {/* ─── 3D CANVAS ─── */}
       <SolarSystemScene
         focusPlanet={focusPlanet}
         onPlanetClick={handlePlanetClick}
@@ -102,7 +135,7 @@ function CosmosPortal() {
         introDone={introDone}
       />
 
-      {/* ─── INTRO OVERLAY (20s choreography — matches drev.space) ─── */}
+      {/* ─── INTRO OVERLAY ─── */}
       <div className={`intro-overlay${introDone ? " done" : ""}`}>
         <div className="intro-title">DIGITAL COSMOS</div>
         <div className="intro-sub">An operational universe. Powered by District Robotics.</div>
@@ -114,7 +147,7 @@ function CosmosPortal() {
         </div>
       </div>
 
-      {/* ─── HUD TOP BAR (matches drev.space cosmos.html) ─── */}
+      {/* ─── HUD TOP BAR ─── */}
       {introDone && (
         <div className="hud-top" style={{ zIndex: 100 }}>
           <div className="hud-left">
@@ -124,6 +157,16 @@ function CosmosPortal() {
             <span className="hud-clock">{utc}</span>
           </div>
           <div className="hud-right">
+            {/* SATCOM button */}
+            <button
+              onClick={() => setSatcomOpen(true)}
+              className="feed-chip"
+              data-on={satcomOpen ? "1" : "0"}
+              style={{ color: satcomOpen ? "#00d4ff" : undefined }}
+            >
+              🛰️ SATCOM {satelliteCatalog.length > 0 ? satelliteCatalog.length.toLocaleString() : ""}
+            </button>
+
             <div className="hud-feeds">
               {CONSTELLATIONS.map((c) => (
                 <button
@@ -143,13 +186,13 @@ function CosmosPortal() {
               className="btn primary"
               style={{ padding: "6px 14px", fontSize: "11px", minHeight: "auto" }}
             >
-              LAUNCH PLATFORM
+              DREV.SPACE
             </a>
           </div>
         </div>
       )}
 
-      {/* ─── TOOLTIP (matches drev.space cosmos-tooltip) ─── */}
+      {/* ─── TOOLTIP ─── */}
       <div
         ref={tooltipRef}
         className={`cosmos-tooltip${tooltip ? " visible" : ""}`}
@@ -158,7 +201,7 @@ function CosmosPortal() {
         {tooltip?.text}
       </div>
 
-      {/* ─── PLANET INFO PANEL (Apple-glass card) ─── */}
+      {/* ─── PLANET INFO PANEL ─── */}
       {introDone && planetInfo && (
         <div
           className="glass"
@@ -200,7 +243,7 @@ function CosmosPortal() {
       )}
 
       {/* ─── STEM ACADEMY CTA ─── */}
-      {introDone && !focusPlanet && (
+      {introDone && !focusPlanet && !satcomOpen && (
         <div style={{ position: "fixed", bottom: "24px", right: "24px", zIndex: 45 }}>
           <a
             href="https://drev.space/stem-academy.html"
@@ -241,6 +284,28 @@ function CosmosPortal() {
           RESET
         </button>
       )}
+
+      {/* ─── SATCOM LOADING INDICATOR ─── */}
+      {catalogLoading && (
+        <div className="glass" style={{
+          position: "fixed", bottom: "80px", left: "50%", transform: "translateX(-50%)",
+          zIndex: 90, padding: "8px 16px", fontSize: "10px", fontFamily: "var(--font-mono)",
+          color: "rgba(0,212,255,0.6)", whiteSpace: "nowrap",
+        }}>
+          Loading TLE catalog... {catalogProgress}/{catalogTotal}
+        </div>
+      )}
+
+      {/* ─── SATCOM PANEL ─── */}
+      <SatcomPanel
+        catalog={satelliteCatalog}
+        isOpen={satcomOpen}
+        onClose={() => setSatcomOpen(false)}
+        onTrackSatellite={handleTrackSatellite}
+        trackedSatellite={trackedSatellite}
+        onToggleConstellation={handleToggleConstellation}
+        constellationVisibility={feedVisible}
+      />
 
       <RendererBadge />
     </div>
