@@ -77,6 +77,7 @@ export const WORLDS: World[] = [
     color: "#ccbbaa", secondaryColor: "#ffcc00",
     missions: [
       { id: "mer-06", title: "Solar Sail Deployment", description: "Orchestrate the launch of a solar sail mission to the outer system.", type: "simulation", xpReward: 60, duration: "20 min", prerequisites: ["mer-01", "mer-03"] },
+      { id: "mer-07", title: "Mercury Transit Observation", description: "Observe and record a Mercury transit across the Sun's disk from the surface.", type: "research", xpReward: 35, duration: "10 min", prerequisites: ["mer-03"] },
     ], environment: { terrain: "rocky", atmosphere: "none", gravity: "low", temperature: "hot", hasStructures: true, hasVehicles: false, hasVegetation: false },
     connectedWorlds: ["mercury-caloris"],
   },
@@ -132,6 +133,7 @@ export const WORLDS: World[] = [
     color: "#ddaa55", secondaryColor: "#ffcc33",
     missions: [
       { id: "ven-06", title: "Mining Operation Command", description: "Direct the atmospheric mining fleet for maximum fuel production.", type: "simulation", xpReward: 60, duration: "20 min", prerequisites: ["ven-03"] },
+      { id: "ven-07", title: "Cloud City Expansion", description: "Design and deploy a new aerostat platform module for the Cloud City.", type: "construction", xpReward: 40, duration: "10 min", prerequisites: ["ven-01", "ven-04"] },
     ], environment: { terrain: "space", atmosphere: "dense", gravity: "standard", temperature: "hot", hasStructures: true, hasVehicles: true, hasVegetation: false },
     connectedWorlds: ["venus-surface-probe"],
   },
@@ -304,6 +306,7 @@ export const WORLDS: World[] = [
     color: "#887766", secondaryColor: "#ff6633",
     missions: [
       { id: "mar-09", title: "Interplanetary Launch Window", description: "Calculate and execute a transfer orbit to the asteroid belt.", type: "simulation", xpReward: 55, duration: "20 min", prerequisites: ["mar-06"] },
+      { id: "mar-10", title: "Mars City Power Grid", description: "Restore and optimize the primary fusion power grid for Olympus City.", type: "construction", xpReward: 40, duration: "10 min", prerequisites: ["mar-02", "mar-05"] },
     ], environment: { terrain: "desert", atmosphere: "thin", gravity: "low", temperature: "cold", hasStructures: true, hasVehicles: true, hasVegetation: false },
     connectedWorlds: ["mars-phobos"],
   },
@@ -368,6 +371,7 @@ export const WORLDS: World[] = [
     color: "#8899aa", secondaryColor: "#ddaa00",
     missions: [
       { id: "ast-06", title: "Platinum Extraction", description: "Manage the precious metals extraction and refining operation on Psyche.", type: "construction", xpReward: 55, duration: "20 min", prerequisites: ["ast-01", "ast-03"] },
+      { id: "ast-07", title: "Asteroid Redirect Mission", description: "Plot a course to redirect a near-Earth asteroid into a stable mining orbit.", type: "simulation", xpReward: 60, duration: "20 min", prerequisites: ["ast-05", "ast-06"] },
     ], environment: { terrain: "rocky", atmosphere: "none", gravity: "low", temperature: "cold", hasStructures: true, hasVehicles: true, hasVegetation: false },
     connectedWorlds: ["asteroid-prospector"],
   },
@@ -453,6 +457,7 @@ export const WORLDS: World[] = [
     color: "#4455aa", secondaryColor: "#6666ff",
     missions: [
       { id: "jup-09", title: "Field Mapping Expedition", description: "Navigate through radiation belts to map the full extent of the magnetosphere.", type: "exploration", xpReward: 60, duration: "20 min", prerequisites: ["jup-05"] },
+      { id: "jup-10", title: "Europa Subsurface Survey", description: "Deploy ground-penetrating radar to map Europa's subsurface ocean through the ice crust.", type: "research", xpReward: 50, duration: "15 min", prerequisites: ["jup-06", "jup-08"] },
     ], environment: { terrain: "space", atmosphere: "none", gravity: "micro", temperature: "cold", hasStructures: true, hasVehicles: false, hasVegetation: false },
     connectedWorlds: ["jupiter-ganymede"],
   },
@@ -518,6 +523,8 @@ export const WORLDS: World[] = [
     color: "#bbccdd", secondaryColor: "#99aabb",
     missions: [
       { id: "sat-07", title: "Cryo Sample Transport", description: "Coordinate the transport of cryogenic samples between Saturnian moons.", type: "simulation", xpReward: 35, duration: "10 min", prerequisites: [] },
+      { id: "sat-08", title: "Ring Particle Analysis", description: "Collect and analyze ice particles from Saturn's B-ring for organic compounds.", type: "research", xpReward: 45, duration: "15 min", prerequisites: ["sat-01", "sat-02"] },
+      { id: "sat-09", title: "Titan Airship Navigation", description: "Pilot a helium airship through Titan's thick atmosphere to map the equatorial desert.", type: "exploration", xpReward: 55, duration: "15 min", prerequisites: ["sat-03"] },
     ], environment: { terrain: "rocky", atmosphere: "none", gravity: "low", temperature: "extreme-cold", hasStructures: true, hasVehicles: true, hasVegetation: false },
     connectedWorlds: ["saturn-mimas"],
   },
@@ -562,6 +569,8 @@ export const WORLDS: World[] = [
     color: "#667788", secondaryColor: "#8899bb",
     missions: [
       { id: "ura-04", title: "Deep Space Telescope Calibration", description: "Calibrate the deep space telescope array for Kuiper Belt surveys.", type: "construction", xpReward: 55, duration: "20 min", prerequisites: ["ura-01"] },
+      { id: "ura-05", title: "Ring Plane Crossing", description: "Navigate the Uranus ring plane crossing to study ring particle composition.", type: "exploration", xpReward: 50, duration: "15 min", prerequisites: ["ura-01"] },
+      { id: "ura-06", title: "Axial Magnetic Field Study", description: "Map Uranus's lopsided magnetic field from orbit around the tilted planet.", type: "research", xpReward: 45, duration: "15 min", prerequisites: ["ura-02"] },
     ], environment: { terrain: "rocky", atmosphere: "none", gravity: "low", temperature: "extreme-cold", hasStructures: true, hasVehicles: false, hasVegetation: false },
     connectedWorlds: ["uranus-ariel"],
   },
@@ -606,6 +615,8 @@ export const WORLDS: World[] = [
     color: "#334488", secondaryColor: "#5577cc",
     missions: [
       { id: "nep-04", title: "Interstellar Trajectory", description: "Calculate and execute an interstellar trajectory using Neptune's gravity assist.", type: "simulation", xpReward: 60, duration: "20 min", prerequisites: ["nep-02"] },
+      { id: "nep-05", title: "Great Dark Spot Observation", description: "Track and analyze Neptune's Great Dark Spot storm system as it evolves.", type: "research", xpReward: 40, duration: "10 min", prerequisites: ["nep-03"] },
+      { id: "nep-06", title: "Triton Orbit Insertion", description: "Navigate the complex orbital insertion around Triton's retrograde orbit.", type: "simulation", xpReward: 55, duration: "15 min", prerequisites: ["nep-01", "nep-04"] },
     ], environment: { terrain: "space", atmosphere: "none", gravity: "micro", temperature: "extreme-cold", hasStructures: true, hasVehicles: true, hasVegetation: false },
     connectedWorlds: ["neptune-storm-watch"],
   },
@@ -651,6 +662,8 @@ export const WORLDS: World[] = [
     missions: [
       { id: "deep-04", title: "Interstellar Data Relay", description: "Establish the first data link from beyond the heliopause.", type: "simulation", xpReward: 80, duration: "30 min", prerequisites: ["deep-03"] },
       { id: "deep-05", title: "Stellar Navigation", description: "Navigate using background stars as the probe exits the solar system.", type: "puzzle", xpReward: 85, duration: "30 min", prerequisites: ["deep-04"] },
+      { id: "deep-06", title: "Heliopause Crossing Protocol", description: "Coordinate the instruments and data collection as the probe crosses the heliopause into interstellar space.", type: "research", xpReward: 75, duration: "25 min", prerequisites: ["deep-04"] },
+      { id: "deep-07", title: "Kuiper Belt Object Flyby", description: "Calculate and execute a flyby of a Kuiper Belt Object to study primordial solar system material.", type: "exploration", xpReward: 70, duration: "20 min", prerequisites: ["deep-01", "deep-03"] },
     ], environment: { terrain: "space", atmosphere: "none", gravity: "micro", temperature: "extreme-cold", hasStructures: false, hasVehicles: false, hasVegetation: false },
     connectedWorlds: ["deep-oort"],
   },
